@@ -189,8 +189,6 @@ code {
 
 .menu-toggle {
   display: none;
-  width: 54px;
-  height: 54px;
   align-items: center;
   justify-items: center;
   gap: 5px;
