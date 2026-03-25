@@ -14,17 +14,36 @@ const navItems = [
 ];
 
 export default function AppShell() {
+  const [isMobileView, setIsMobileView] = useState(() =>
+    window.matchMedia("(max-width: 980px)").matches
+  );
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
 
   useRevealOnScroll();
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 980px)");
+
+    function handleViewportChange(event) {
+      setIsMobileView(event.matches);
+      if (!event.matches) {
+        setMenuOpen(false);
+      }
+    }
+
+    setIsMobileView(mediaQuery.matches);
+    mediaQuery.addEventListener("change", handleViewportChange);
+
+    return () => mediaQuery.removeEventListener("change", handleViewportChange);
+  }, []);
+
+  useEffect(() => {
     setMenuOpen(false);
   }, [location.pathname, location.hash]);
 
   useEffect(() => {
-    if (!menuOpen) {
+    if (!menuOpen || !isMobileView) {
       document.body.style.removeProperty("overflow");
       return undefined;
     }
@@ -43,7 +62,7 @@ export default function AppShell() {
       document.body.style.removeProperty("overflow");
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [menuOpen]);
+  }, [isMobileView, menuOpen]);
 
   return (
     <div className="page-shell">
