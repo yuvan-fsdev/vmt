@@ -1,4 +1,5 @@
-import { Link, Outlet } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import BrandMark from "./BrandMark";
 import Icon from "./icons";
 import useRevealOnScroll from "../hooks/useRevealOnScroll";
@@ -13,12 +14,41 @@ const navItems = [
 ];
 
 export default function AppShell() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+
   useRevealOnScroll();
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname, location.hash]);
+
+  useEffect(() => {
+    if (!menuOpen) {
+      document.body.style.removeProperty("overflow");
+      return undefined;
+    }
+
+    document.body.style.overflow = "hidden";
+
+    function handleKeyDown(event) {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.removeProperty("overflow");
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [menuOpen]);
 
   return (
     <div className="page-shell">
       <header className="site-header">
-        <div className="header-shell">
+        <div className={`header-shell ${menuOpen ? "menu-open" : ""}`}>
           <Link className="brand" to="/" aria-label="VMT home">
             <BrandMark alt="VMT logo" />
             <span className="brand-copy">
@@ -27,17 +57,37 @@ export default function AppShell() {
             </span>
           </Link>
 
-          <nav className="nav-links" aria-label="Primary">
-            {navItems.map((item) => (
-              <Link key={item.hash} to={`/#${item.hash}`}>
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          <button
+            type="button"
+            className={`menu-toggle ${menuOpen ? "is-open" : ""}`}
+            aria-expanded={menuOpen}
+            aria-controls="site-menu"
+            aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
 
-          <Link className="header-cta" to="/#contact">
-            Build With Us
-          </Link>
+          <div
+            className={`header-menu-backdrop ${menuOpen ? "is-visible" : ""}`}
+            onClick={() => setMenuOpen(false)}
+          />
+
+          <div id="site-menu" className={`header-menu ${menuOpen ? "is-open" : ""}`}>
+            <nav className="nav-links" aria-label="Primary">
+              {navItems.map((item) => (
+                <Link key={item.hash} to={`/#${item.hash}`} onClick={() => setMenuOpen(false)}>
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+
+            <Link className="header-cta" to="/#contact" onClick={() => setMenuOpen(false)}>
+              Build With Us
+            </Link>
+          </div>
         </div>
       </header>
 
