@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { HashRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import AppShell from "./components/AppShell";
 import HomePage from "./pages/HomePage";
@@ -27,7 +27,7 @@ function ScrollToHash() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <ScrollToHash />
       <Routes>
         <Route element={<AppShell />}>
@@ -36,6 +36,6 @@ export default function App() {
           <Route path="*" element={<Navigate replace to="/404" />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
